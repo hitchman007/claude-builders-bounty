@@ -21,7 +21,7 @@ The installer uses the current Python interpreter, copies the guard into ~/.clau
 ```bash
 python3 -m unittest discover -s .claude/hooks -p test_block_destructive.py -v
 ```
-Eight tests passed, including twenty dangerous examples, ten safe examples, JSON denial, log-call arguments, failure-to-log behavior, malformed input, and installer settings preservation/idempotency. Tests never execute the dangerous command strings. External CLI and real Claude hook installation were not exercised; log writes are mocked in unit tests.
+Eight tests passed, including dangerous-command variants, ten safe examples, JSON denial, log-call arguments, failure-to-log behavior, malformed input, and installer settings preservation/idempotency. Tests never execute the dangerous command strings. External CLI and real Claude hook installation were not exercised; log writes are mocked in unit tests.
 
 ## Limits
 This is not a shell or SQL security sandbox. Arbitrary scripts, aliases, variable expansion, dynamic eval, uncommon wrappers, heredocs and all SQL dialects are not comprehensively interpreted. It may conservatively block ambiguous commands. Keep Claude Code's normal permissions and OS/database controls enabled. Do not treat this denylist as protection against arbitrary hostile code.
