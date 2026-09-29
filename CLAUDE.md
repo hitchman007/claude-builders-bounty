@@ -3,10 +3,17 @@
 ## Mission
 Build and maintain a production SaaS on Next.js 15 App Router with SQLite. Prefer explicit, boring, testable code over clever abstractions. Every change must keep the app runnable, migrations reproducible, and server/client boundaries obvious.
 
+## Greenfield defaults (no clarification needed)
+- In a new project, use npm, TypeScript, App Router, and the Node.js runtime. Default to `better-sqlite3` and a local `data/app.db`; a single explicit default avoids asking the user to choose an adapter before useful work can begin.
+- If the repository already uses Turso/libSQL, keep that adapter. Existing deployed data and configuration take precedence over greenfield defaults.
+- Honor an existing `src/` directory: the structure below is relative to `src/` when present. Keep migrations and tests at the repository root. This makes the template work with either create-next-app layout without editing it.
+- Read package.json and the lockfile before running commands. Do not claim a check passed when its script is absent; add the smallest appropriate check as part of implementation and state what remains unverified.
+- Never ask for a production secret to understand this template. Local development uses disposable data; production authentication, billing, and deployment require explicit project configuration.
+
 ## Stack and versions
 - Next.js 15 with App Router and React Server Components by default.
 - TypeScript in strict mode; do not introduce `any` to bypass type errors.
-- SQLite through exactly one adapter: `better-sqlite3` for a single-node/local deployment or Turso/libSQL for hosted/edge-friendly persistence. Do not mix adapters in one runtime.
+- SQLite defaults to `better-sqlite3` on the Node.js runtime; preserve Turso/libSQL when already configured. Do not mix adapters or use native `better-sqlite3` in an Edge runtime, because their execution and connection models differ.
 - Validation at trust boundaries with a schema library such as Zod.
 - Package scripts are the source of truth for dev, test, lint, typecheck, migration, and build commands.
 
@@ -43,7 +50,7 @@ Reason: ownership stays visible and server-only code cannot drift into browser b
 
 ## Naming conventions
 - React components and exported types: `PascalCase`.
-- Functions, variables, files containing utilities: `camelCase` / `kebab-case.ts` consistently.
+- Functions and variables use `camelCase`; utility filenames use `kebab-case.ts`. This removes ambiguous naming choices.
 - Server Actions use verb-first names: `createWorkspace`, `updateProfile`.
 - Database tables are plural `snake_case`; columns are `snake_case`.
 - Booleans start with `is`, `has`, `can`, or `should`.
@@ -109,7 +116,7 @@ Reason: components remain portable and behavior stays testable.
 Reason: UI visibility is not an authorization boundary.
 
 ## Dev commands
-Use the repository scripts when present. A greenfield project should expose these equivalents:
+Inspect the scripts that actually exist before running them (`npm run`). The following are target names, not a claim that create-next-app supplies all of them. On a new project, add missing scripts as their implementation is introduced; never run a nonexistent script or silently omit a required check:
 ```bash
 npm run dev
 npm run lint
@@ -120,7 +127,9 @@ npm run db:check
 npm run build
 ```
 
-Before a PR is ready, run lint, typecheck, tests, migration checks when schema changed, and production build.
+For TypeScript, `typecheck` should run `tsc --noEmit`. Use the installed linter and test runner rather than assuming one is available. Implement `db:migrate` and `db:check` with the selected adapter before claiming database readiness. Do not point tests or migration checks at production data.
+
+Before a PR is ready, run lint, typecheck, tests, migration checks when schema changed, and production build; report any unavailable check explicitly.
 
 ## Change workflow
 1. Read the nearest route, feature, query, and tests before editing.
