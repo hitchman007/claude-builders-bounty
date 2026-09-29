@@ -13,7 +13,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
       - name: Create Next.js 15 project
         run: npx create-next-app@15 template-smoke --ts --eslint --app --src-dir --use-npm --no-tailwind --import-alias "@/*" --yes
       - name: Install documented SQLite dependency
