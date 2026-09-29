@@ -55,16 +55,18 @@ You're in the right place.
 
 ## Generate CHANGELOG with Claude Code
 
-The repository includes a project-local `/generate-changelog` skill at `.claude/skills/generate-changelog/SKILL.md`.
+Setup (Python 3 and Git required):
+1. Clone this repository, or copy both `.claude/skills/generate-changelog/` and `scripts/changelog.py` into your project.
+2. Open the project in Claude Code and run `/generate-changelog`.
+3. Review `CHANGELOG.md`. For a preview without writing, run `python3 scripts/changelog.py --stdout`.
 
-Setup and use:
-1. Open this repository in Claude Code.
-2. Run `/generate-changelog`.
-3. Review the generated `CHANGELOG.md` and commit it.
+This uses a deterministic Python generator. The same nearest-tag range is used to read commits; no tags means all HEAD history. Shallow clones fail with a clear message. Existing released sections are preserved. Conventional feat/fix prefixes produce Added/Fixed; explicit remove/delete/drop subjects produce Removed; other changes produce Changed. Empty categories are omitted.
 
-### Sample output from this repository
+### Verification
+Run `python3 -m unittest discover -s scripts -p test_changelog.py -v`.
+Seven tests passed in the maintenance environment: tag-range construction, no-tag behavior, shallow-history rejection, all four categories, preservation/idempotence, empty history, ambiguous headings, and the real-repository snapshot (some are combined in one test).
 
-Using the repository history present when the skill was added:
+The fixture uses the verified GitHub history of claude-builders-bounty/claude-builders-bounty at commit `1aeae2adc82d33f971fd7731644348dcdd24b5a6`. Generated from those source records:
 
 ```markdown
 # Changelog
@@ -72,10 +74,10 @@ Using the repository history present when the skill was added:
 ## Unreleased
 
 ### Added
-- initial README with bounty board (1aeae2a)
+- feat: initial README with bounty board (1aeae2a)
 
 ### Changed
 - Initial commit (a80a580)
 ```
 
-The skill always reads the current git history; the sample above is evidence of the expected structure, not hard-coded generated output.
+The tagged-history boundary is unit-tested with a controlled Git response. Live subprocess/Claude slash-command execution remains unverified in the maintenance environment, which denies child-process creation. The fixture test is not presented as an end-to-end CLI run.
